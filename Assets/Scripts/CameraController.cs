@@ -16,8 +16,8 @@ public class CameraController : MonoBehaviour {
     }
 
 
-    void Update () {
-        camMoveSpeed = GameObject.Find("Player").GetComponent<PlayerController>().moveSpeed; 
+    void LateUpdate () {
+        //camMoveSpeed = GameObject.Find("Player").GetComponent<PlayerController>().moveSpeed; 
         //set's the camMoveSpeed float to be the moveSpeed value found in the PlayerController
         //This is supposed to match their speed, allowing one to effect the other
         //DOESN'T WORK AS INTENDED - Currently Alpha seems to move slightly slower than the camera

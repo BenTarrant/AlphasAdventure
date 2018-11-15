@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) && (isGrounded == true))   // if the left mouse button is pressed and the player is grounded
         {
-            Rb.velocity = new Vector2(Rb.velocity.x, jumpForce); // make the player move along the Y axis at the jump force float
+            Rb.AddForce(transform.TransformDirection(Vector3.up) * jumpForce);// addforce upwards and multiply by jump force
             Jumping = true; // set jumping to true in script
             isGrounded = false;
 
@@ -62,5 +62,12 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Anim.SetBool("isDead", true);
+        moveSpeed = 0;
+        //Physics.gravity = Vector2.zero;
     }
 }
