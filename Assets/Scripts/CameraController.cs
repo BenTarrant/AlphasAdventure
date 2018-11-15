@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour {
     }
 
 
-    void LateUpdate () {
+    void Update () {
         //camMoveSpeed = GameObject.Find("Player").GetComponent<PlayerController>().moveSpeed; 
         //set's the camMoveSpeed float to be the moveSpeed value found in the PlayerController
         //This is supposed to match their speed, allowing one to effect the other
