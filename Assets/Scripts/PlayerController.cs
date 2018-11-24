@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody Rb; // private reference for Riigidbody
     private Animator Anim; // private reference for Animator
+
+    public float gameSpeed = 0f; // reference for the amount of time left
+    public int score = 0;
+    public Text Scoretext; // reference the UI text
 
     // Use this for initialization-----------------------------------------------------------------------------------------------------------
     void Start()
@@ -31,8 +36,10 @@ public class PlayerController : MonoBehaviour
     {
         //Constant Right Movement--------------------------------------------------------------------------------------------------------------
 
-        Rb.velocity = new Vector2(moveSpeed, Rb.velocity.y); // moves the Rigidbody along the x axis at the movespeed float
-
+        Rb.velocity = new Vector3(moveSpeed, Rb.velocity.y); // moves the Rigidbody along the x axis at the movespeed float
+        gameSpeed += Time.deltaTime; //time left minus delta time
+        score = Mathf.RoundToInt(gameSpeed); //score int = time passed float but rounded to the nearest int
+        Scoretext.text = score.ToString(); // set the timer passed text value to the score int string
 
         //Jumping------------------------------------------------------------------------------------------------------------------------------
 
@@ -41,10 +48,9 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) && (isGrounded == true))   // if the left mouse button is pressed and the player is grounded
         {
-            Rb.AddForce(transform.TransformDirection(Vector3.up) * jumpForce);// addforce upwards and multiply by jump force
+            Rb.AddForce(new Vector2(0, jumpForce), ForceMode.Impulse);
             Jumping = true; // set jumping to true in script
             isGrounded = false;
-
         }
 
         if (Jumping == true) // if jumping boolean is set to true in script
@@ -64,10 +70,18 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Death --------------------------------------------------------------------------------------------------------------------------------
+
     private void OnTriggerEnter(Collider other)
     {
         Anim.SetBool("isDead", true);
         moveSpeed = 0;
-        //Physics.gravity = Vector2.zero;
+        StartCoroutine(PauseGame());
+    }
+
+    IEnumerator PauseGame()
+    {
+        yield return new WaitForSeconds(1.5f);
+        Time.timeScale = 0;
     }
 }

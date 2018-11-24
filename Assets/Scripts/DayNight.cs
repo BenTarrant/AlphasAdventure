@@ -9,6 +9,7 @@ public class DayNight : MonoBehaviour
     float scrollSpeed = 0.01f;
     float rotateSpeed = 0.2f;
     Renderer rend;
+    public Light DirectionalLight;
 
     void Start()
     {
