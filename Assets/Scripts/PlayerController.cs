@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,8 +9,11 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed; // when player dies remember to set this to 0!
 
     bool Jumping;
-
     private bool isGrounded = false;
+    private float gravity;
+    public float fallMultiplier;
+
+    public float verticalVelocity;
 
     private Rigidbody Rb; // private reference for Riigidbody
     private Animator Anim; // private reference for Animator
@@ -28,11 +30,11 @@ public class PlayerController : MonoBehaviour
 
         Rb = GetComponent<Rigidbody>(); // fetch the rigidbody attached to this GO
         Anim = GetComponent<Animator>(); // fet the animator attached to this GO
-
+        gravity = Physics.gravity.y;
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         //Constant Right Movement--------------------------------------------------------------------------------------------------------------
 
@@ -46,21 +48,34 @@ public class PlayerController : MonoBehaviour
         Anim.SetBool("isJumping", false); // ensures the boolean is set back to false for jumping in animator
         Jumping = false; // ensures the boolean is set back to false for jumping in script
 
+        verticalVelocity = Rb.velocity.y;
+
         if (Input.GetMouseButtonDown(0) && (isGrounded == true))   // if the left mouse button is pressed and the player is grounded
         {
             Rb.AddForce(new Vector2(0, jumpForce), ForceMode.Impulse);
             Jumping = true; // set jumping to true in script
             isGrounded = false;
+
+            print("Imma clicked");
         }
 
         if (Jumping == true) // if jumping boolean is set to true in script
         {
             Anim.SetBool("isJumping", true); // set the jumping boolean to true in animator
-        }
 
+            if (transform.position.y == -0.2)//Rb.velocity.y < 0.1)
+            {
+                print("Imma jumping");
+                Rb.AddForce(new Vector3(0, gravity * fallMultiplier, 0));
+
+                Jumping = false;
+            }
+        }
     }
 
     //Collision with the ground / isGrounded-------------------------------------------------------------------------------------------------
+
+    //update this to raycast check to the floor - drawn a line to confirm - less expensive than constant collision detection
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -84,4 +99,5 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         Time.timeScale = 0;
     }
+
 }
