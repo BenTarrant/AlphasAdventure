@@ -7,13 +7,10 @@ public class PlayerController : MonoBehaviour
 
     public float jumpForce;
     public float moveSpeed; // when player dies remember to set this to 0!
+    public float Gravity;
 
     bool Jumping;
     private bool isGrounded = false;
-    private float gravity;
-    public float fallMultiplier;
-
-    public float verticalVelocity;
 
     private Rigidbody Rb; // private reference for Riigidbody
     private Animator Anim; // private reference for Animator
@@ -26,64 +23,49 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
 
-        isGrounded = false;
+        //isGrounded = false;
 
         Rb = GetComponent<Rigidbody>(); // fetch the rigidbody attached to this GO
         Anim = GetComponent<Animator>(); // fet the animator attached to this GO
-        gravity = Physics.gravity.y;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        //Constant Right Movement--------------------------------------------------------------------------------------------------------------
 
+        //Constant Right Movement--------------------------------------------------------------------------------------------------------------
         Rb.velocity = new Vector3(moveSpeed, Rb.velocity.y); // moves the Rigidbody along the x axis at the movespeed float
-        gameSpeed += Time.deltaTime; //time left minus delta time
+        gameSpeed += Time.deltaTime;
         score = Mathf.RoundToInt(gameSpeed); //score int = time passed float but rounded to the nearest int
         Scoretext.text = score.ToString(); // set the timer passed text value to the score int string
 
         //Jumping------------------------------------------------------------------------------------------------------------------------------
 
         Anim.SetBool("isJumping", false); // ensures the boolean is set back to false for jumping in animator
+        GroundCheck(); // runs groundcheck raycast function
         Jumping = false; // ensures the boolean is set back to false for jumping in script
 
-        verticalVelocity = Rb.velocity.y;
 
-        if (Input.GetMouseButtonDown(0) && (isGrounded == true))   // if the left mouse button is pressed and the player is grounded
+        if (Input.GetKeyDown("space") && (isGrounded == true))   // if the space button is pressed and the player is grounded
         {
-            Rb.AddForce(new Vector2(0, jumpForce), ForceMode.Impulse);
+            //Rb.velocity = new Vector2(Rb.velocity.y, jumpForce);
+            Rb.AddForce(new Vector2(0f, jumpForce));
             Jumping = true; // set jumping to true in script
-            isGrounded = false;
-
-            print("Imma clicked");
+            //isGrounded = false;
         }
 
         if (Jumping == true) // if jumping boolean is set to true in script
         {
+            Vector3 vel = Rb.velocity;
+            vel.y -= Gravity * Time.deltaTime;
+            Rb.velocity = vel;
             Anim.SetBool("isJumping", true); // set the jumping boolean to true in animator
 
-            if (transform.position.y == -0.2)//Rb.velocity.y < 0.1)
-            {
-                print("Imma jumping");
-                Rb.AddForce(new Vector3(0, gravity * fallMultiplier, 0));
-
-                Jumping = false;
-            }
         }
     }
 
-    //Collision with the ground / isGrounded-------------------------------------------------------------------------------------------------
+    //Fucntions-----------------------------------------------------------------------------------------------------------------------------
 
-    //update this to raycast check to the floor - drawn a line to confirm - less expensive than constant collision detection
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.collider.gameObject.layer == LayerMask.NameToLayer("Ground"))
-        {
-            isGrounded = true;
-        }
-    }
 
     //Death --------------------------------------------------------------------------------------------------------------------------------
 
@@ -100,4 +82,21 @@ public class PlayerController : MonoBehaviour
         Time.timeScale = 0;
     }
 
+    //isGrounded--------------------------------------------------------------------------------------------------------------------------
+    void GroundCheck()
+    {
+        RaycastHit hit;
+        float distance = 1f;
+        Vector3 dir = new Vector3(0, -1);
+        Debug.DrawRay(transform.position, dir, Color.red);
+
+        if (Physics.Raycast(transform.position, dir, out hit, distance))
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+    }
 }
