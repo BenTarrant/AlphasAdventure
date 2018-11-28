@@ -19,6 +19,18 @@ public class PlayerController : MonoBehaviour
     public int score = 0;
     public Text Scoretext; // reference the UI text
 
+
+    public float LivesRemaining = 3f;
+    public GameObject Life01;
+    public GameObject Life02;
+    public GameObject Life03;
+    public Text LivesText;
+    public GameObject RestartButton;
+
+
+    private float verticalVelocity;
+    
+
     // Use this for initialization-----------------------------------------------------------------------------------------------------------
     void Start()
     {
@@ -30,14 +42,19 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
 
         //Constant Right Movement--------------------------------------------------------------------------------------------------------------
         Rb.velocity = new Vector3(moveSpeed, Rb.velocity.y); // moves the Rigidbody along the x axis at the movespeed float
+
         gameSpeed += Time.deltaTime;
+        moveSpeed += 0.1f * Time.deltaTime;
         score = Mathf.RoundToInt(gameSpeed); //score int = time passed float but rounded to the nearest int
-        Scoretext.text = score.ToString(); // set the timer passed text value to the score int string
+        Scoretext.text = "Score: " + score.ToString(); // set the timer passed text value to the score int string
+
+
+        LivesText.text = "Lives: " + LivesRemaining.ToString();
 
         //Jumping------------------------------------------------------------------------------------------------------------------------------
 
@@ -48,19 +65,17 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown("space") && (isGrounded == true))   // if the space button is pressed and the player is grounded
         {
-            //Rb.velocity = new Vector2(Rb.velocity.y, jumpForce);
-            Rb.AddForce(new Vector2(0f, jumpForce));
+            Rb.velocity = new Vector3(Rb.velocity.x, jumpForce, Rb.velocity.z);
+            //Rb.AddForce(new Vector2(0f, jumpForce));
+
+            verticalVelocity = jumpForce;
             Jumping = true; // set jumping to true in script
-            //isGrounded = false;
+
         }
 
         if (Jumping == true) // if jumping boolean is set to true in script
         {
-            Vector3 vel = Rb.velocity;
-            vel.y -= Gravity * Time.deltaTime;
-            Rb.velocity = vel;
             Anim.SetBool("isJumping", true); // set the jumping boolean to true in animator
-
         }
     }
 
@@ -71,15 +86,28 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Anim.SetBool("isDead", true);
-        moveSpeed = 0;
-        StartCoroutine(PauseGame());
+        LivesRemaining -= 1;
+        //instatiate sparks and play audio que when 'damage' is taken
+        if (LivesRemaining <= 0)
+        {
+            StartCoroutine("EndGame");
+            RestartButton.SetActive(true);
+        }
     }
 
-    IEnumerator PauseGame()
+    IEnumerator EndGame()
     {
+        isGrounded = false;
+        Anim.SetBool("isDead", true);
+        moveSpeed = 0;
         yield return new WaitForSeconds(1.5f);
         Time.timeScale = 0;
+    }
+
+    IEnumerator AddScore()
+    {
+        yield return new WaitForSeconds(1.5f);
+        moveSpeed++;
     }
 
     //isGrounded--------------------------------------------------------------------------------------------------------------------------
@@ -93,10 +121,17 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(transform.position, dir, out hit, distance))
         {
             isGrounded = true;
+            verticalVelocity = -Gravity * Time.deltaTime;
         }
         else
         {
             isGrounded = false;
+            verticalVelocity -= Gravity * Time.deltaTime;
         }
     }
+
+
+
+
 }
+
