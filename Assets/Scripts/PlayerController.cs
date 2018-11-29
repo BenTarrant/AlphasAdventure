@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed; // when player dies remember to set this to 0!
     public float Gravity;
 
+
     bool Jumping;
     private bool isGrounded = false;
 
@@ -45,8 +46,11 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
 
+
         //Constant Right Movement--------------------------------------------------------------------------------------------------------------
         Rb.velocity = new Vector3(moveSpeed, Rb.velocity.y); // moves the Rigidbody along the x axis at the movespeed float
+
+
 
         gameSpeed += Time.deltaTime;
         moveSpeed += 0.1f * Time.deltaTime;
@@ -65,12 +69,13 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown("space") && (isGrounded == true))   // if the space button is pressed and the player is grounded
         {
-            Rb.velocity = new Vector3(Rb.velocity.x, jumpForce, Rb.velocity.z);
-            //Rb.AddForce(new Vector2(0f, jumpForce));
+            //Rb.velocity = new Vector3(Rb.velocity.x, jumpForce, Rb.velocity.z);
+            //Rb.AddForce(new Vector2(0f, jumpForce * 10f));
+
+            // CHECK THIS DOCUMENTATION: http://gamasutra.com/blogs/DanielFineberg/20150825/244650/Designing_a_Jump_in_Unity.php
 
             verticalVelocity = jumpForce;
-            Jumping = true; // set jumping to true in script
-
+            Jumping = true; // set jumping to true in script  
         }
 
         if (Jumping == true) // if jumping boolean is set to true in script
